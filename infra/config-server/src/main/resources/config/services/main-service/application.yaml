@@ -5,6 +5,8 @@ spring:
   application:
     name: main-service
 
+
+
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5434/main
@@ -16,6 +18,10 @@ spring:
       ddl-auto: none
     properties:
       hibernate.format_sql: true
+
+  sql:
+    init:
+      mode: always
 
 stats:
   server:

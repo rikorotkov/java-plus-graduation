@@ -8,6 +8,10 @@ spring:
     username: postgres
     password: postgres
 
+  sql:
+    init:
+      mode: always
+
 logging.level:
   ru.practicum: INFO
   org.springframework.jdbc.datasource.init: DEBUG
