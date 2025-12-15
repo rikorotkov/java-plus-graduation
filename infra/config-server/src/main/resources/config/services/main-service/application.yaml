@@ -22,10 +22,6 @@ spring:
     serialization:
       write-dates-as-timestamps: false
 
-stats:
-  server:
-    url: http://stats-server:9090
-
 eureka:
   client:
     serviceUrl:
