@@ -11,9 +11,6 @@ spring:
     username: postgres
     password: postgres
 
-  profiles:
-    active: dev
-
   jpa:
     hibernate:
       ddl-auto: none

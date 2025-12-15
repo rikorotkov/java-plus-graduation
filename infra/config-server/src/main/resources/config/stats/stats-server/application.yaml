@@ -8,9 +8,6 @@ spring:
     username: postgres
     password: postgres
 
-  profiles:
-    active: dev
-
   sql:
     init:
       mode: always
