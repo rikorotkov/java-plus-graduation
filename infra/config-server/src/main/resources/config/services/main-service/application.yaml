@@ -5,6 +5,10 @@ spring:
   application:
     name: main-service
 
+stats:
+  server:
+    url: http://stats-server
+
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5434/main
