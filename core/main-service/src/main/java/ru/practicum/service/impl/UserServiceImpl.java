@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
+
     private final UserRepository userRepository;
     private final UserMapper userMapper;
 
@@ -44,10 +45,25 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserDto> getUsers(List<Long> ids, Integer from, Integer size) {
+        if (from < 0) {
+            throw new BadRequestException("Параметр from не может быть отрицательным");
+        }
+        if (size == null || size <= 0) {
+            throw new BadRequestException("Параметр size должен быть больше 0");
+        }
+
+        int page = from / size;
+
         if (ids == null || ids.isEmpty()) {
-            return userRepository.findAll(PageRequest.of(from, size)).stream().map(userMapper::toUserDto).collect(Collectors.toList());
+            return userRepository.findAll(PageRequest.of(page, size))
+                    .stream()
+                    .map(userMapper::toUserDto)
+                    .collect(Collectors.toList());
         } else {
-            return userRepository.findAllByIdIn(ids, PageRequest.of(from, size)).stream().map(userMapper::toUserDto).collect(Collectors.toList());
+            return userRepository.findAllByIdIn(ids, PageRequest.of(page, size))
+                    .stream()
+                    .map(userMapper::toUserDto)
+                    .collect(Collectors.toList());
         }
     }
 

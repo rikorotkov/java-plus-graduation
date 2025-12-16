@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class CompilationServiceImpl implements CompilationService {
+
     private final CompilationRepository compilationRepository;
     private final CompilationMapper compilationMapper;
 
@@ -55,7 +56,19 @@ public class CompilationServiceImpl implements CompilationService {
 
     @Override
     public List<CompilationDto> getCompilations(Boolean pinned, Integer from, Integer size) {
-        return compilationRepository.findByPinned(pinned, PageRequest.of(from, size)).stream().map(compilationMapper::toCompilationDto).collect(Collectors.toList());
+        if (from < 0) {
+            throw new BadRequestException("Параметр from не может быть отрицательным");
+        }
+        if (size == null || size <= 0) {
+            throw new BadRequestException("Параметр size должен быть больше 0");
+        }
+
+        int page = from / size;
+
+        return compilationRepository.findByPinned(pinned, PageRequest.of(page, size))
+                .stream()
+                .map(compilationMapper::toCompilationDto)
+                .collect(Collectors.toList());
     }
 
     @Override

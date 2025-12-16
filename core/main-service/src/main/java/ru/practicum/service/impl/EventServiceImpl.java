@@ -93,8 +93,17 @@ public class EventServiceImpl implements EventService {
         }
 
         updateNotNullFields(event, updateRequest);
-        event.setState(updateRequest.getStateAction() == AdminEventAction.PUBLISH_EVENT ? EventState.PUBLISHED : EventState.CANCELED);
-        event.setPublishedOn(LocalDateTime.now());
+
+        AdminEventAction action = updateRequest.getStateAction();
+        if (action != null) {
+            if (action == AdminEventAction.PUBLISH_EVENT) {
+                event.setState(EventState.PUBLISHED);
+                event.setPublishedOn(LocalDateTime.now());
+            } else if (action == AdminEventAction.REJECT_EVENT) {
+                event.setState(EventState.CANCELED);
+            }
+        }
+
         Event updated = eventRepository.save(event);
 
         EventFullDto dto = eventMapper.toFullDto(updated);

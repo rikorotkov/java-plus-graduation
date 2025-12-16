@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class CategoryServiceImpl implements CategoryService {
+
     private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
 
@@ -59,7 +60,20 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public List<CategoryDto> getCategories(Integer from, Integer size) {
-        return categoryRepository.findAll(PageRequest.of(from, size)).stream().map(categoryMapper::toCategoryDto).collect(Collectors.toList());
+        if (from < 0) {
+            throw new BadRequestException("Параметр from не может быть отрицательным");
+        }
+        if (size == null || size <= 0) {
+            throw new BadRequestException("Параметр size должен быть больше 0");
+        }
+
+        int page = from / size;
+
+        return categoryRepository
+                .findAll(PageRequest.of(page, size))
+                .stream()
+                .map(categoryMapper::toCategoryDto)
+                .collect(Collectors.toList());
     }
 
     @Override
