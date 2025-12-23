@@ -53,7 +53,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public List<EventFullDto> getEventsByParams(EventAdminSearchParam params) {
-        log.debug("Get events by params: {}", params);
+        log.debug("Получение событий по параметрам: {}", params);
 
         Page<Event> searched = eventRepository.findAll(eventAdminSearchParamSpec(params), params.getPageable());
 
@@ -78,23 +78,24 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public EventFullDto updateEventByAdmin(Long eventId, UpdateEventAdminRequest updateRequest) {
-        log.info("Update event: {}", updateRequest);
+        log.info("Обновление события: {}", updateRequest);
 
         Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new NotFoundException("Event id=" + eventId + " not found"));
+                .orElseThrow(() -> new NotFoundException("Событие с id=" + eventId + " не найдено"));
 
         if (event.getState() != EventState.PENDING
                 && updateRequest.getStateAction() == AdminEventAction.PUBLISH_EVENT) {
-            throw new ConflictException("Cannot publish the event because it's not in the right state: " + event.getState());
+            throw new ConflictException("Невозможно опубликовать событие, так как оно находится в неверном статусе: "
+                    + event.getState());
         }
 
         if (event.getState() == EventState.PUBLISHED
                 && updateRequest.getStateAction() == AdminEventAction.REJECT_EVENT) {
-            throw new ConflictException("Cannot reject the event because it's not in the right state: PUBLISHED");
+            throw new ConflictException("Невозможно отклонить событие, так как оно уже опубликовано");
         }
 
         if (event.getEventDate().minusHours(1).isBefore(LocalDateTime.now())) {
-            throw new ConflictException("Too late to change event");
+            throw new ConflictException("Слишком поздно изменять событие");
         }
 
         updateNotNullFields(event, updateRequest);
@@ -124,7 +125,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public EventFullDto getEventById(Long id) {
-        log.info("Get event: {}", id);
+        log.info("Получение события: {}", id);
 
         Event event = eventRepository.findByIdAndState(id, EventState.PUBLISHED)
                 .orElseThrow(() -> new NotFoundException("Событие не найдено или не опубликовано"));
@@ -139,7 +140,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public EventFullDto getEventForRequest(Long id) {
-        log.info("Get event: {}", id);
+        log.info("Получение события для заявок: {}", id);
 
         Event event = eventRepository.findById(id).get();
         Map<Long, Long> confirmed = requestClient.getConfirmedRequestsCount(List.of(event.getId()));
@@ -153,7 +154,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public List<EventShortDto> searchEvents(PublicEventSearchParam param) {
-        log.info("Search events: {}", param);
+        log.info("Поиск событий: {}", param);
 
         Page<Event> events = eventRepository.findAll(eventPublicSearchParamSpec(param), param.getPageable());
 
@@ -165,7 +166,8 @@ public class EventServiceImpl implements EventService {
 
         Stream<EventShortDto> eventShortDtoStream = events.stream()
                 .map(event -> {
-                    if (param.getOnlyAvailable() && confirmed.get(event.getId()) >= event.getParticipantLimit()) {
+                    if (param.getOnlyAvailable()
+                            && confirmed.get(event.getId()) >= event.getParticipantLimit()) {
                         return null;
                     }
                     EventShortDto dto = eventMapper.toShortDto(event);
@@ -186,7 +188,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public List<EventShortDto> getUsersEvents(EventUserSearchParam param) {
-        log.info("Get users events: {}", param);
+        log.info("Получение событий пользователя: {}", param);
         Page<Event> events = eventRepository.findByInitiator(param.getUserId(), param.getPageable());
 
         List<Long> eventIds = events.stream().map(Event::getId).toList();
@@ -207,7 +209,7 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public EventFullDto saveEvent(NewEventDto dto, Long userId) {
-        log.info("Save event: {}", dto);
+        log.info("Сохранение события: {}", dto);
 
         Event event = eventMapper.toEntity(dto, userId);
 
@@ -230,13 +232,13 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public EventFullDto getEventByIdAndUserId(Long eventId, Long userId) {
-        log.info("Get event: {}", eventId);
+        log.info("Получение события: {}", eventId);
 
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException("Событие не найдено"));
 
         if (!Objects.equals(event.getInitiator(), userId)) {
-            throw new ConflictException("Событие добавленно не теущем пользователем");
+            throw new ConflictException("Событие добавлено не текущим пользователем");
         }
 
         Map<Long, Long> confirmed = requestClient.getConfirmedRequestsCount(List.of(event.getId()));
@@ -251,10 +253,12 @@ public class EventServiceImpl implements EventService {
     @Override
     public EventFullDto updateEventByUser(Long eventId, Long userId, UpdateEventUserRequest event) {
         Event eventToUpdate = eventRepository.findById(eventId)
-                .orElseThrow(() -> new NotFoundException("Событие не найдено id=" + eventId));
-        if (!Objects.equals(eventToUpdate.getInitiator(), userId) ||
-                eventToUpdate.getState() == EventState.PUBLISHED) {
-            throw new ConflictException("Событие добавленно не теущем пользователем или уже было опубликовано");
+                .orElseThrow(() -> new NotFoundException("Событие с id=" + eventId + " не найдено"));
+        if (!Objects.equals(eventToUpdate.getInitiator(), userId)
+                || eventToUpdate.getState() == EventState.PUBLISHED) {
+            throw new ConflictException(
+                    "Событие добавлено не текущим пользователем или уже опубликовано"
+            );
         }
         updateNotNullFields(eventToUpdate, event);
         if (event.getStateAction() == UserEventAction.CANCEL_REVIEW) {
@@ -275,32 +279,43 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public List<EventShortDto> getEventsFeedCogList(List<Long> followedUsersIds, PublicEventSearchParam param) {
-        Page<Event> eventsPage = eventRepository.findAll(EventSpecifications.eventFeedSearchParamSpec(followedUsersIds, param), param.getPageable());
+        Page<Event> eventsPage = eventRepository.findAll(
+                EventSpecifications.eventFeedSearchParamSpec(followedUsersIds, param),
+                param.getPageable()
+        );
         return eventMapper.toShortDto(eventsPage.toList());
     }
 
     @Override
     public Map<Long, EventFullDto> getEventsFeedCogMap(List<Long> followedUsersIds, PublicEventSearchParam param) {
-        Page<EventFullDto> eventsPage = eventRepository.findAll(EventSpecifications.eventFeedSearchParamSpec(followedUsersIds, param), param.getPageable()).map(eventMapper::toFullDto);
-        return eventsPage.stream().collect(Collectors.toMap(EventFullDto::getId, Function.identity()));
+        Page<EventFullDto> eventsPage = eventRepository.findAll(
+                EventSpecifications.eventFeedSearchParamSpec(followedUsersIds, param),
+                param.getPageable()
+        ).map(eventMapper::toFullDto);
+        return eventsPage.stream()
+                .collect(Collectors.toMap(EventFullDto::getId, Function.identity()));
     }
-
 
     private Map<Long, Long> getViews(List<Long> eventIds) {
         List<ViewStatsDto> stats = statsClient.getStats(
                 "2000-01-01 00:00:00",
                 "2100-01-01 00:00:00",
                 eventIds.stream().map(id -> "/events/" + id).toList(),
-                true);
+                true
+        );
         return stats.stream()
                 .filter(statsDto -> !statsDto.getUri().equals("/events"))
-                .collect(toMap(statDto ->
-                        Long.parseLong(statDto.getUri().replace("/events/", "")), ViewStatsDto::getHits));
+                .collect(toMap(
+                        statDto -> Long.parseLong(statDto.getUri().replace("/events/", "")),
+                        ViewStatsDto::getHits
+                ));
     }
 
     private void updateNotNullFields(Event eventToUpdate, UpdateEventUserRequest event) {
         if (event.getAnnotation() != null) eventToUpdate.setAnnotation(event.getAnnotation());
-        if (event.getCategory() != null) eventToUpdate.setCategory(Category.builder().id(event.getCategory()).build());
+        if (event.getCategory() != null) {
+            eventToUpdate.setCategory(Category.builder().id(event.getCategory()).build());
+        }
         if (event.getDescription() != null) eventToUpdate.setDescription(event.getDescription());
         if (event.getEventDate() != null) eventToUpdate.setEventDate(event.getEventDate());
         if (event.getLocation() != null) {
@@ -311,14 +326,20 @@ public class EventServiceImpl implements EventService {
             eventToUpdate.setLocation(loc);
         }
         if (event.getPaid() != null) eventToUpdate.setPaid(event.getPaid());
-        if (event.getParticipantLimit() != null) eventToUpdate.setParticipantLimit(event.getParticipantLimit());
-        if (event.getRequestModeration() != null) eventToUpdate.setRequestModeration(event.getRequestModeration());
+        if (event.getParticipantLimit() != null) {
+            eventToUpdate.setParticipantLimit(event.getParticipantLimit());
+        }
+        if (event.getRequestModeration() != null) {
+            eventToUpdate.setRequestModeration(event.getRequestModeration());
+        }
         if (event.getTitle() != null) eventToUpdate.setTitle(event.getTitle());
     }
 
     private void updateNotNullFields(Event eventToUpdate, UpdateEventAdminRequest event) {
         if (event.getAnnotation() != null) eventToUpdate.setAnnotation(event.getAnnotation());
-        if (event.getCategory() != null) eventToUpdate.setCategory(Category.builder().id(event.getCategory()).build());
+        if (event.getCategory() != null) {
+            eventToUpdate.setCategory(Category.builder().id(event.getCategory()).build());
+        }
         if (event.getDescription() != null) eventToUpdate.setDescription(event.getDescription());
         if (event.getEventDate() != null) eventToUpdate.setEventDate(event.getEventDate());
         if (event.getLocation() != null) {
@@ -329,8 +350,12 @@ public class EventServiceImpl implements EventService {
             eventToUpdate.setLocation(loc);
         }
         if (event.getPaid() != null) eventToUpdate.setPaid(event.getPaid());
-        if (event.getParticipantLimit() != null) eventToUpdate.setParticipantLimit(event.getParticipantLimit());
-        if (event.getRequestModeration() != null) eventToUpdate.setRequestModeration(event.getRequestModeration());
+        if (event.getParticipantLimit() != null) {
+            eventToUpdate.setParticipantLimit(event.getParticipantLimit());
+        }
+        if (event.getRequestModeration() != null) {
+            eventToUpdate.setRequestModeration(event.getRequestModeration());
+        }
         if (event.getTitle() != null) eventToUpdate.setTitle(event.getTitle());
     }
 }

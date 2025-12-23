@@ -2,37 +2,44 @@ package ru.practicum.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import ru.practicum.client.EventClient;
 import ru.practicum.dto.event.EventFullDto;
 import ru.practicum.dto.event.EventShortDto;
-import ru.practicum.params.PublicEventSearchParam;
+import ru.practicum.dto.event.EventsFeedRequest;
 import ru.practicum.service.EventService;
 
 import java.util.List;
 import java.util.Map;
 
-@Validated
 @RestController
 @RequiredArgsConstructor
+@Validated
 public class FeignEventController implements EventClient {
 
     private final EventService eventService;
 
+    @Override
     @GetMapping("/pr/events/{eventId}")
-    public EventFullDto getEventForParticipationService(Long eventId) {
+    public EventFullDto getEventForParticipationService(@PathVariable Long eventId) {
         return eventService.getEventForRequest(eventId);
     }
 
-    @PatchMapping("/feed/1")
-    public List<EventShortDto> getEventsFeedCogList(List<Long> followedUsersIds, PublicEventSearchParam param) {
-        return eventService.getEventsFeedCogList(followedUsersIds, param);
+    @Override
+    @PostMapping("/feed/list")
+    public List<EventShortDto> getEventsFeedList(@RequestBody EventsFeedRequest request) {
+        return eventService.getEventsFeedCogList(
+                request.getFollowedUsersIds(),
+                request.getParam()
+        );
     }
 
-    @PatchMapping("/feed/2")
-    public Map<Long, EventFullDto> getEventsFeedCogMap(List<Long> followedUsersIds, PublicEventSearchParam param) {
-        return eventService.getEventsFeedCogMap(followedUsersIds, param);
+    @Override
+    @PostMapping("/feed/map")
+    public Map<Long, EventFullDto> getEventsFeedMap(@RequestBody EventsFeedRequest request) {
+        return eventService.getEventsFeedCogMap(
+                request.getFollowedUsersIds(),
+                request.getParam()
+        );
     }
 }
