@@ -1,17 +1,19 @@
 package ru.practicum.entity;
 
 import jakarta.persistence.Embeddable;
-import lombok.*;
-import lombok.experimental.FieldDefaults;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Embeddable
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE)
-public class Location {
-    Double lat;
 
-    Double lon;
+public class Location {
+    private Double lat;
+
+    private Double lon;
 }

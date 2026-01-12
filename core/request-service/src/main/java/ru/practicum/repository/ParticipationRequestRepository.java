@@ -2,7 +2,6 @@ package ru.practicum.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.stereotype.Repository;
 import ru.practicum.dto.request.RequestStatus;
 import ru.practicum.entity.ParticipationRequest;
 
@@ -10,19 +9,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@Repository
 public interface ParticipationRequestRepository extends JpaRepository<ParticipationRequest, Long> {
-
     @Query("""
-            select r.eventId, count(r.id)
+            select r.event, count(r.id)
             from ParticipationRequest r
-            where r.eventId in ?1 and r.status = ?2
-            group by r.eventId""")
+            where r.event in ?1 and r.status = ?2
+            group by r.event""")
     List<Object[]> countRequestsByStatus(List<Long> ids, RequestStatus status);
 
-    List<ParticipationRequest> findAllByRequesterId(Long userId);
+    long countByEventAndStatus(Long eventId, RequestStatus status);
 
-    int countByEventIdAndStatus(Long eventId, RequestStatus status);
+    List<ParticipationRequest> findAllByRequester(Long userId);
 
     default Map<Long, Long> countRequestsByEventIdsAndStatus(List<Long> ids, RequestStatus status) {
         List<Object[]> result = countRequestsByStatus(ids, status);
@@ -33,7 +30,7 @@ public interface ParticipationRequestRepository extends JpaRepository<Participat
                 ));
     }
 
-    List<ParticipationRequest> findAllByEventId(Long eventId);
+    List<ParticipationRequest> findAllByEvent(Long eventId);
 
-    Boolean existsByEventIdAndRequesterId(Long eventId, Long requesterId);
+    boolean existsByRequesterAndEventAndStatus(Long id, Long id1, RequestStatus status);
 }

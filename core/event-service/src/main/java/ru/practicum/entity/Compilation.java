@@ -1,8 +1,10 @@
 package ru.practicum.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
-import lombok.experimental.FieldDefaults;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -10,25 +12,25 @@ import java.util.Set;
 @Getter
 @Setter
 @Entity
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@Table(name = "compilations")
-@FieldDefaults(level = AccessLevel.PRIVATE)
+@Table(name = "compilation")
 public class Compilation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+    @Column(name = "id", nullable = false)
+    private Long id;
 
-    @Column(name = "title")
-    String title;
+    @Size(max = 50)
+    @NotNull
+    @Column(name = "title", nullable = false, length = 50)
+    private String title;
 
     @Column(name = "pinned")
-    Boolean pinned;
+    private Boolean pinned;
 
     @ManyToMany
     @JoinTable(name = "event_compilation",
             joinColumns = @JoinColumn(name = "compilation_id"),
             inverseJoinColumns = @JoinColumn(name = "event_id"))
-    Set<Event> events = new LinkedHashSet<>();
+    private Set<Event> events = new LinkedHashSet<>();
+
 }

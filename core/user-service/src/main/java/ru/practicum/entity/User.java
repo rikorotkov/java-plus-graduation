@@ -1,25 +1,29 @@
 package ru.practicum.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
-import lombok.experimental.FieldDefaults;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter
 @Entity
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 @Table(name = "users")
-@FieldDefaults(level = AccessLevel.PRIVATE)
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+    @Column(name = "id", nullable = false)
+    private Long id;
 
-    @Column(name = "name")
-    String name;
+    @Size(max = 250)
+    @NotNull
+    @Column(name = "name", nullable = false, length = 250)
+    private String name;
 
-    @Column(name = "email")
-    String email;
+    @Size(max = 254)
+    @NotNull
+    @Column(name = "email", nullable = false, length = 254)
+    private String email;
+
 }

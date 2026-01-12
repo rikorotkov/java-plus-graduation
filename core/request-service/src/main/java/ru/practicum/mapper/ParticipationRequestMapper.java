@@ -1,20 +1,14 @@
 package ru.practicum.mapper;
 
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingConstants;
 import ru.practicum.dto.request.ParticipationRequestDto;
 import ru.practicum.entity.ParticipationRequest;
 
-@Component
-public class ParticipationRequestMapper {
-
-    public ParticipationRequestDto toDto(ParticipationRequest participationRequest) {
-        return new ParticipationRequestDto(
-                participationRequest.getId(),
-                participationRequest.getRequesterId(),
-                participationRequest.getEventId(),
-                participationRequest.getStatus(),
-                participationRequest.getCreated()
-        );
-    }
-
+@Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
+public interface ParticipationRequestMapper {
+    @Mapping(target = "event", source = "request.event")
+    @Mapping(target = "requester", source = "request.requester")
+    ParticipationRequestDto toDto(ParticipationRequest request);
 }

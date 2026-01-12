@@ -1,28 +1,41 @@
 package ru.practicum.controller;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.dto.compilation.CompilationDto;
-import ru.practicum.service.CompilationService;
+import ru.practicum.parameters.PageableSearchParam;
+import ru.practicum.service.impl.CompilationServiceImpl;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/compilations")
 @RequiredArgsConstructor
 public class PublicCompilationController {
 
-    private final CompilationService compilationService;
+    private final CompilationServiceImpl compilationService;
 
     @GetMapping
-    public List<CompilationDto> getCompilations(@RequestParam(defaultValue = "false") Boolean pinned,
-                                                @RequestParam(defaultValue = "0") Integer from,
+    public List<CompilationDto> getCompilations(@RequestParam(defaultValue = "0") Integer from,
                                                 @RequestParam(defaultValue = "10") Integer size) {
-        return compilationService.getCompilations(pinned, from, size);
+        PageableSearchParam param = PageableSearchParam.builder()
+                .size(size)
+                .from(from)
+                .build();
+
+        log.info("GET /compilations called");
+        List<CompilationDto> compilations = compilationService.getAllCompilations(param.getPageable());
+        log.info("Returned {} compilations", compilations.size());
+        return compilations;
     }
 
     @GetMapping("/{compId}")
-    public CompilationDto getCompilation(@PathVariable Long compId) {
-        return compilationService.getCompilation(compId);
+    public CompilationDto getCompilationById(@PathVariable Long compId) {
+        log.info("GET /compilations/{} called", compId);
+        CompilationDto compilation = compilationService.getCompilationById(compId);
+        log.info("Returned compilation: id={}, title={}", compilation.getId(), compilation.getTitle());
+        return compilation;
     }
 }

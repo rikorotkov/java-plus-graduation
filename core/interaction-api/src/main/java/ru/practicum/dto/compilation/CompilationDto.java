@@ -1,27 +1,19 @@
 package ru.practicum.dto.compilation;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 import ru.practicum.dto.event.EventShortDto;
 
-import java.util.Set;
+import java.util.List;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class CompilationDto {
-    private Long id;
-
-    @NotBlank
-    private String title;
-
-    @NotNull
-    private Boolean pinned;
-
-    private Set<EventShortDto> events;
+    List<EventShortDto> events;
+    Long id;
+    Boolean pinned;
+    String title;
 }

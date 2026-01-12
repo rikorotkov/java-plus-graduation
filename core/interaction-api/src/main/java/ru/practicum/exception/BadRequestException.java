@@ -1,7 +1,9 @@
 package ru.practicum.exception;
 
-public class BadRequestException extends RuntimeException {
+import feign.FeignException;
+
+public class BadRequestException extends FeignException {
     public BadRequestException(String message) {
-        super(message);
+        super(400, message);
     }
 }

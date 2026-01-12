@@ -1,78 +1,64 @@
 package ru.practicum.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import ru.practicum.dto.NewCategoryDto;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.dto.category.CategoryDto;
+import ru.practicum.dto.category.NewCategoryDto;
 import ru.practicum.entity.Category;
-import ru.practicum.exception.BadRequestException;
-import ru.practicum.exception.ConflictException;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.mapper.CategoryMapper;
 import ru.practicum.repository.CategoryRepository;
 import ru.practicum.service.CategoryService;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class CategoryServiceImpl implements CategoryService {
+
     private final CategoryRepository categoryRepository;
-    private final CategoryMapper categoryMapper;
+    private final CategoryMapper mapper;
 
     @Override
-    public CategoryDto addCategory(NewCategoryDto newCategoryDto) {
-        if (newCategoryDto.getName() == null || newCategoryDto.getName().isBlank()) {
-            throw new BadRequestException("Название категории не может быть пустым");
-        } else if (categoryRepository.existsByName(newCategoryDto.getName())) {
-            throw new ConflictException("Категория с таким названием уже существует");
-        }
-        Category category = categoryMapper.toCategory(newCategoryDto);
-        categoryValidator(category);
-        categoryRepository.save(category);
-        return categoryMapper.toCategoryDto(category);
+    @Transactional
+    public CategoryDto save(NewCategoryDto dto) {
+        Category saved = categoryRepository.save(mapper.toEntity(dto));
+        return mapper.toDto(saved);
     }
 
     @Override
+    @Transactional
     public void deleteCategory(Long catId) {
-        categoryRepository.deleteById(catId);
+        Category category = categoryRepository.findById(catId)
+                .orElseThrow(() -> new NotFoundException("Category with id=" + catId + " was not found"));
+        categoryRepository.delete(category);
+        categoryRepository.flush();
     }
 
     @Override
-    public CategoryDto updateCategory(Long catId, NewCategoryDto newCategoryDto) {
-        Category category = categoryRepository.findById(catId).orElseThrow(() -> new NotFoundException("Категория не найдена"));
-        if (category.getName().equals(newCategoryDto.getName())) {
-            return categoryMapper.toCategoryDto(category);
-        }
-        if (newCategoryDto.getName() != null) {
-            category.setName(newCategoryDto.getName());
-        }
-        if (categoryRepository.existsByName(newCategoryDto.getName())) {
-            throw new ConflictException("Категория с таким названием уже существует");
-        }
-        categoryValidator(category);
-        categoryRepository.save(category);
-        return categoryMapper.toCategoryDto(category);
+    @Transactional
+    public CategoryDto update(CategoryDto dto) {
+        Category category = categoryRepository.findById(dto.getId())
+                .orElseThrow(() -> new NotFoundException("Category with id=" + dto.getId() + " was not found"));
+        category.setName(dto.getName());
+        categoryRepository.saveAndFlush(category);
+        return mapper.toDto(category);
     }
 
     @Override
-    public List<CategoryDto> getCategories(Integer from, Integer size) {
-        return categoryRepository.findAll(PageRequest.of(from, size)).stream().map(categoryMapper::toCategoryDto).collect(Collectors.toList());
+    public List<CategoryDto> getAllCategories(Pageable pageable) {
+        return categoryRepository.findAll(pageable).stream()
+                .map(mapper::toDto)
+                .toList();
     }
 
     @Override
-    public CategoryDto getCategory(Long catId) {
-        Category category = categoryRepository.findById(catId).orElseThrow(() -> new NotFoundException("Категория не найдена"));
-        return categoryMapper.toCategoryDto(category);
-    }
-
-    private void categoryValidator(Category category) {
-        if (category.getName().isBlank()) {
-            throw new BadRequestException("Название категории не может быть пустым");
-        } else if (category.getName().length() > 50) {
-            throw new BadRequestException("Длина названия категории не может быть больше 50 символов");
-        }
+    public CategoryDto getCategoryById(Long id) {
+        return categoryRepository.findById(id)
+                .map(mapper::toDto)
+                .orElseThrow(() -> new NotFoundException("Категория не найдена"));
     }
 }

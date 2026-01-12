@@ -57,7 +57,7 @@
     - `stats-db`: порт `5433`
     - `main-db`: порт `5434`
 - `init_stats.sql` — инициализация схемы/таблиц статистики
-- `init_main.sql` — инициализация доменных данных (создание БД и таблиц)
+- `init.sql` — инициализация доменных данных (создание БД и таблиц)
 
 ---
 
@@ -77,7 +77,7 @@
 ├── core/                  # доменные сервисы + общий interaction-api (DTO/Feign/params)
 ├── stats/                 # сервис статистики + client/dto
 ├── docker-compose.yml     # Postgres для main и stats
-├── init_main.sql          # инициализация доменной БД
+├── init.sql          # инициализация доменной БД
 ├── init_stats.sql         # инициализация stats БД
 ├── ewm-main-service-spec.json
 ├── ewm-stats-service-spec.json

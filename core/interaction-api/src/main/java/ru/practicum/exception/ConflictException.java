@@ -1,7 +1,9 @@
 package ru.practicum.exception;
 
-public class ConflictException extends RuntimeException {
-    public ConflictException(String s) {
-        super(s);
+import feign.FeignException;
+
+public class ConflictException extends FeignException {
+    public ConflictException(String message) {
+        super(409, message);
     }
 }
