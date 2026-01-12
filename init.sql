@@ -3,3 +3,10 @@ CREATE DATABASE event_db;
 CREATE DATABASE user_db;
 CREATE DATABASE request_db;
 CREATE DATABASE recommendations_db;
+
+GRANT ALL PRIVILEGES ON DATABASE stat_db TO postgres;
+GRANT ALL PRIVILEGES ON DATABASE event_db TO postgres;
+GRANT ALL PRIVILEGES ON DATABASE user_db TO postgres;
+GRANT ALL PRIVILEGES ON DATABASE request_db TO postgres;
+GRANT ALL PRIVILEGES ON DATABASE recommendations_db TO postgres;
+

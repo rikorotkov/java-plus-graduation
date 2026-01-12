@@ -5,7 +5,6 @@ import org.springframework.stereotype.Component;
 import ru.practicum.aop.ClientErrorHandler;
 import ru.practicum.client.UserClient;
 import ru.practicum.dto.event.*;
-import ru.practicum.entity.Category;
 import ru.practicum.entity.Event;
 import ru.practicum.entity.Location;
 
@@ -26,6 +25,8 @@ public class EventMapper {
                 .initiator(userClient.getUserShortDtoById(event.getInitiator()))
                 .paid(event.getPaid())
                 .title(event.getTitle())
+                .confirmedRequests(0L)
+                .rating(0.0)
                 .build();
     }
 
@@ -56,7 +57,6 @@ public class EventMapper {
 
         return Event.builder()
                 .annotation(dto.getAnnotation())
-                .category(Category.builder().id(dto.getCategory()).build())
                 .description(dto.getDescription())
                 .eventDate(dto.getEventDate())
                 .location(new Location(

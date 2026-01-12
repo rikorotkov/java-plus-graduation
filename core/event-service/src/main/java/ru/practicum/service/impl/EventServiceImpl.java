@@ -19,10 +19,12 @@ import ru.practicum.ewm.stats.proto.RecommendedEventProto;
 import ru.practicum.ewm.stats.proto.UserPredictionsRequestProto;
 import ru.practicum.exception.ConflictException;
 import ru.practicum.exception.NotFoundException;
+import ru.practicum.mapper.CategoryMapper;
 import ru.practicum.mapper.EventMapper;
 import ru.practicum.parameters.EventAdminSearchParam;
 import ru.practicum.parameters.EventUserSearchParam;
 import ru.practicum.parameters.PublicSearchParam;
+import ru.practicum.repository.CategoryRepository;
 import ru.practicum.repository.EventRepository;
 import ru.practicum.service.EventService;
 
@@ -48,6 +50,7 @@ public class EventServiceImpl implements EventService {
     private final EventMapper eventMapper;
     private final AnalyzerClient analyzerClient;
     private final UserClient userClient;
+    private final CategoryRepository categoryRepository;
 
     @Override
     public List<EventShortDto> getUsersEvents(EventUserSearchParam params) {
@@ -65,9 +68,17 @@ public class EventServiceImpl implements EventService {
     @Transactional
     public EventFullDto saveEvent(NewEventDto dto, Long userId) {
         userClient.getUserShortDtoById(userId);
-        Event saved = eventRepository.saveAndFlush(eventMapper.toEntity(dto, userId));
+
+        Category category = categoryRepository.findById(dto.getCategory())
+                .orElseThrow(() -> new NotFoundException("Category not found"));
+
+        Event event = eventMapper.toEntity(dto, userId);
+        event.setCategory(category);
+
+        Event saved = eventRepository.saveAndFlush(event);
+
         EventFullDto fullDto = eventMapper.toFullDto(saved);
-        fullDto.setRating(0.);
+        fullDto.setRating(0.0);
         fullDto.setConfirmedRequests(0L);
         return fullDto;
     }
