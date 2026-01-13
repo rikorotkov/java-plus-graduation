@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.Hibernate;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -16,6 +17,8 @@ import java.util.Objects;
 @NoArgsConstructor
 @Embeddable
 public class UserActionId implements Serializable {
+
+    @Serial
     private static final long serialVersionUID = 3850287697018997009L;
     @NotNull
     @Column(name = "user_id", nullable = false)

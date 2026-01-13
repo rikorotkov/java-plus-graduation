@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.Hibernate;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -16,6 +17,7 @@ import java.util.Objects;
 @NoArgsConstructor
 @Embeddable
 public class EventSimilarityId implements Serializable {
+    @Serial
     private static final long serialVersionUID = 4682851433840970069L;
     @NotNull
     @Column(name = "first_event", nullable = false)
