@@ -31,7 +31,7 @@ public class EventSimilarityId implements Serializable {
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
         EventSimilarityId entity = (EventSimilarityId) o;
         return Objects.equals(this.secondEvent, entity.secondEvent) &&
-               Objects.equals(this.firstEvent, entity.firstEvent);
+                Objects.equals(this.firstEvent, entity.firstEvent);
     }
 
     @Override

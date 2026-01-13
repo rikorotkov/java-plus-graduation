@@ -1,5 +1,7 @@
 package ru.practicum.service;
 
+import ru.practicum.dto.request.EventRequestStatusUpdateRequest;
+import ru.practicum.dto.request.EventRequestStatusUpdateResult;
 import ru.practicum.dto.request.ParticipationRequestDto;
 import ru.practicum.dto.request.RequestStatus;
 
@@ -18,4 +20,8 @@ public interface ParticipationRequestService {
     Map<Long, Long> countRequestsByEventIdsAndStatus(List<Long> ids, RequestStatus status);
 
     boolean existsByRequesterAndEventAndStatus(Long userId, Long eventId, RequestStatus status);
+
+    List<ParticipationRequestDto> getEventRequests(Long userId, Long eventId);
+
+    EventRequestStatusUpdateResult updateRequestStatus(Long userId, Long eventId, EventRequestStatusUpdateRequest request);
 }

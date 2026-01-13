@@ -1,7 +1,9 @@
 package ru.practicum.dto.compilation;
 
-import lombok.*;
-import lombok.experimental.FieldDefaults;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import ru.practicum.dto.event.EventShortDto;
 
 import java.util.List;

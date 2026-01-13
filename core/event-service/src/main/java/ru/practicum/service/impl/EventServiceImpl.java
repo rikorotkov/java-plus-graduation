@@ -19,7 +19,6 @@ import ru.practicum.ewm.stats.proto.RecommendedEventProto;
 import ru.practicum.ewm.stats.proto.UserPredictionsRequestProto;
 import ru.practicum.exception.ConflictException;
 import ru.practicum.exception.NotFoundException;
-import ru.practicum.mapper.CategoryMapper;
 import ru.practicum.mapper.EventMapper;
 import ru.practicum.parameters.EventAdminSearchParam;
 import ru.practicum.parameters.EventUserSearchParam;

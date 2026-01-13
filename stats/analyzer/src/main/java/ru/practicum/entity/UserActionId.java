@@ -31,7 +31,7 @@ public class UserActionId implements Serializable {
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
         UserActionId entity = (UserActionId) o;
         return Objects.equals(this.eventId, entity.eventId) &&
-               Objects.equals(this.userId, entity.userId);
+                Objects.equals(this.userId, entity.userId);
     }
 
     @Override

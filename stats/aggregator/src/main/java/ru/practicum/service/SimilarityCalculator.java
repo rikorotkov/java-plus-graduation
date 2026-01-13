@@ -113,8 +113,8 @@ public class SimilarityCalculator {
                     Long eventId = entry.getKey();
                     Map<Long, Double> users = entry.getValue();
                     return !eventId.equals(excludeEventId) &&
-                           users != null &&
-                           users.containsKey(userId);
+                            users != null &&
+                            users.containsKey(userId);
                 })
                 .map(Map.Entry::getKey)
                 .toList();

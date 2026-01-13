@@ -74,7 +74,7 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
         }
 
         if (event.getParticipantLimit() != 0 &&
-            requestRepository.countByEventAndStatus(eventId, RequestStatus.CONFIRMED) >= event.getParticipantLimit()) {
+                requestRepository.countByEventAndStatus(eventId, RequestStatus.CONFIRMED) >= event.getParticipantLimit()) {
             throw new ConflictException("Event participant limit reached");
         }
 
@@ -148,11 +148,16 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
         }
 
         long confirmed = requestRepository.countByEventAndStatus(event.getId(), RequestStatus.CONFIRMED);
+
+        if (confirmed >= participantLimit) {
+            throw new ConflictException("Requests out of limit");
+        }
+
         for (ParticipationRequest request : requests) {
             if (confirmed >= participantLimit) {
-                throw new ConflictException("Requests out of limit");
+                request.setStatus(RequestStatus.REJECTED);
             } else {
-                request.setStatus(status);
+                request.setStatus(RequestStatus.CONFIRMED);
                 confirmed++;
             }
         }
@@ -166,5 +171,19 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
     @Override
     public boolean existsByRequesterAndEventAndStatus(Long userId, Long eventId, RequestStatus status) {
         return requestRepository.existsByRequesterAndEventAndStatus(userId, eventId, status);
+    }
+
+    @Override
+    @ClientErrorHandler
+    public List<ParticipationRequestDto> getEventRequests(Long userId, Long eventId) {
+        return getRequestForEventByUserId(userId, eventId);
+    }
+
+    @Override
+    @Transactional
+    @ClientErrorHandler
+    public EventRequestStatusUpdateResult updateRequestStatus(Long userId, Long eventId,
+                                                              EventRequestStatusUpdateRequest request) {
+        return updateRequests(userId, eventId, request);
     }
 }

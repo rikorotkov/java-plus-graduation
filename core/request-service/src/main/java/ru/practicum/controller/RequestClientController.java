@@ -17,7 +17,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("api/v1/request")
-public class  RequestClientController {
+public class RequestClientController {
 
     private final ParticipationRequestServiceImpl requestService;
 
