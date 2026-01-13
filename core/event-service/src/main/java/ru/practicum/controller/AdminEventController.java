@@ -33,6 +33,15 @@ public class AdminEventController {
             @RequestParam(defaultValue = "0") Integer from,
             @RequestParam(defaultValue = "10") Integer size) {
 
+        if (users != null) {
+            users = users.stream().filter(id -> id != null && id > 0).toList();
+            if (users.isEmpty()) users = null;
+        }
+        if (categories != null) {
+            categories = categories.stream().filter(id -> id != null && id > 0).toList();
+            if (categories.isEmpty()) categories = null;
+        }
+
         EventAdminSearchParam params = EventAdminSearchParam.builder()
                 .users(users)
                 .states(states)

@@ -15,18 +15,29 @@ import java.util.Map;
 public interface RequestClient {
 
     @PostMapping("/{eventId}/users/{userId}")
-    EventRequestStatusUpdateResult updateUsersRequests(@PathVariable Long userId, @PathVariable Long eventId,
-                                                       @RequestBody EventRequestStatusUpdateRequest updateRequest) throws FeignException;
+    EventRequestStatusUpdateResult updateUsersRequests(@PathVariable("eventId") Long eventId,
+                                                       @PathVariable("userId") Long userId,
+                                                       @RequestBody EventRequestStatusUpdateRequest updateRequest)
+            throws FeignException;
+
+    @GetMapping("/{userId}/events/{eventId}")
+    List<ParticipationRequestDto> getRequestsForEventByInitiator(@PathVariable("userId") Long userId,
+                                                                 @PathVariable("eventId") Long eventId)
+            throws FeignException;
 
     @GetMapping("/{eventId}/users/{userId}")
-    List<ParticipationRequestDto> getUsersRequests(@PathVariable Long userId, @PathVariable Long eventId) throws FeignException;
-
-    ;
+    List<ParticipationRequestDto> getUsersRequests(@PathVariable("eventId") Long eventId,
+                                                   @PathVariable("userId") Long userId)
+            throws FeignException;
 
     @PostMapping("/count")
-    Map<Long, Long> countRequestsByEventIdsAndStatus(@RequestBody List<Long> ids, @RequestParam RequestStatus status) throws FeignException;
+    Map<Long, Long> countRequestsByEventIdsAndStatus(@RequestBody List<Long> ids,
+                                                     @RequestParam RequestStatus status)
+            throws FeignException;
 
     @GetMapping("/{eventId}/users/{userId}/exists")
-    boolean existsByRequesterAndEventAndStatus(@PathVariable Long userId, @PathVariable Long eventId,
-                                               @RequestParam RequestStatus status) throws FeignException;
+    boolean existsByRequesterAndEventAndStatus(@PathVariable("userId") Long userId,
+                                               @PathVariable("eventId") Long eventId,
+                                               @RequestParam RequestStatus status)
+            throws FeignException;
 }

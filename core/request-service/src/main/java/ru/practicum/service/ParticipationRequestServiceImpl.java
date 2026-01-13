@@ -142,13 +142,12 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
         Boolean requestModeration = event.getRequestModeration();
         Integer participantLimit = event.getParticipantLimit();
 
-        if (!requestModeration && participantLimit == null) {
+        if (Boolean.FALSE.equals(requestModeration) || participantLimit == null || participantLimit == 0) {
             requests.forEach(request -> request.setStatus(status));
             return;
         }
 
-        long confirmed = requestRepository
-                .countByEventAndStatus(event.getId(), RequestStatus.CONFIRMED);
+        long confirmed = requestRepository.countByEventAndStatus(event.getId(), RequestStatus.CONFIRMED);
         for (ParticipationRequest request : requests) {
             if (confirmed >= participantLimit) {
                 throw new ConflictException("Requests out of limit");

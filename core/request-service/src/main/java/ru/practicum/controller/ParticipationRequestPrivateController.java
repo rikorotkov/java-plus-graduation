@@ -1,5 +1,6 @@
 package ru.practicum.controller;
 
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -22,14 +23,14 @@ public class ParticipationRequestPrivateController {
     private final CollectorClient collectorClient;
 
     @GetMapping
-    public List<ParticipationRequestDto> getRequests(@PathVariable Long userId) {
+    public List<ParticipationRequestDto> getRequests(@PathVariable @Positive Long userId) {
         return requestService.getRequestsByUser(userId);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ParticipationRequestDto createRequest(@PathVariable Long userId,
-                                                 @RequestParam Long eventId) {
+    public ParticipationRequestDto createRequest(@PathVariable @Positive Long userId,
+                                                 @RequestParam @Positive Long eventId) {
         collectorClient.collectUserAction(UserActionProto.newBuilder()
                 .setUserId(userId)
                 .setEventId(eventId)
@@ -39,8 +40,8 @@ public class ParticipationRequestPrivateController {
     }
 
     @PatchMapping("/{requestId}/cancel")
-    public ParticipationRequestDto cancelRequest(@PathVariable Long userId,
-                                                 @PathVariable Long requestId) {
+    public ParticipationRequestDto cancelRequest(@PathVariable @Positive Long userId,
+                                                 @PathVariable @Positive Long requestId) {
         return requestService.cancelRequest(userId, requestId);
     }
 }

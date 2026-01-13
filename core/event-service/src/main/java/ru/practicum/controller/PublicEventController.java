@@ -77,7 +77,7 @@ public class PublicEventController {
     }
 
     @GetMapping("/{id}")
-    public EventFullDto getEventById(@PathVariable Long id, HttpServletRequest request, @RequestHeader("X-EWM-USER-ID") Long userId) {
+    public EventFullDto getEventById(@PathVariable Long id, HttpServletRequest request, @RequestHeader(value = "X-EWM-USER-ID", required = false) Long userId) {
 
         String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 

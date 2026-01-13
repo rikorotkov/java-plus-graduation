@@ -69,7 +69,8 @@ public class PrivateEventController {
     @GetMapping("/{eventId}/requests")
     public List<ParticipationRequestDto> getUsersRequests(@PathVariable @Positive Long userId,
                                                           @PathVariable @Positive Long eventId) {
-        List<ParticipationRequestDto> requestForEventByUserId = requestClient.getUsersRequests(userId, eventId);
+        List<ParticipationRequestDto> requestForEventByUserId =
+                requestClient.getRequestsForEventByInitiator(userId, eventId);
         log.info("Get requests by userId={} for eventId={}, requests={}", userId, eventId, requestForEventByUserId);
         return requestForEventByUserId;
     }
@@ -80,7 +81,6 @@ public class PrivateEventController {
                                                               @PathVariable @Positive Long eventId,
                                                               @RequestBody EventRequestStatusUpdateRequest updateRequest) {
         log.info("Updating requests by userId={} for eventId={}", userId, eventId);
-        return requestClient.updateUsersRequests(userId, eventId, updateRequest);
-
+        return requestClient.updateUsersRequests(eventId, userId, updateRequest);
     }
 }
