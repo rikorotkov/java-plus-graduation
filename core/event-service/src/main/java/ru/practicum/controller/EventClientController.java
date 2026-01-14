@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.dto.event.EventFullDto;
-import ru.practicum.service.impl.EventServiceImpl;
+import ru.practicum.service.EventService;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -16,7 +16,7 @@ import ru.practicum.service.impl.EventServiceImpl;
 @RequestMapping("api/v1/event")
 public class EventClientController {
 
-    private final EventServiceImpl eventService;
+    private final EventService eventService;
 
     @GetMapping("/{eventId}")
     public EventFullDto getEventById(@PathVariable @Positive Long eventId) {

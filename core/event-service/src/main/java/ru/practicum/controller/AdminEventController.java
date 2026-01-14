@@ -10,7 +10,7 @@ import ru.practicum.dto.event.EventFullDto;
 import ru.practicum.dto.event.EventState;
 import ru.practicum.dto.event.UpdateEventAdminRequest;
 import ru.practicum.parameters.EventAdminSearchParam;
-import ru.practicum.service.impl.EventServiceImpl;
+import ru.practicum.service.EventService;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -21,7 +21,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AdminEventController {
 
-    private final EventServiceImpl eventService;
+    private final EventService eventService;
 
     @GetMapping
     public List<EventFullDto> getEventsByParams(

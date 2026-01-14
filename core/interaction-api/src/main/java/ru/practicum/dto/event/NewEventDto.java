@@ -18,6 +18,7 @@ public class NewEventDto {
     @Size(min = 20, max = 7000)
     private String description;
     @Future
+    @NotNull
     private LocalDateTime eventDate;
     private LocationDto location;
     private Boolean paid = false;

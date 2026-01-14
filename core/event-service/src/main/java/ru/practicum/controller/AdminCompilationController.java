@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.dto.compilation.CompilationDto;
 import ru.practicum.dto.compilation.NewCompilationDto;
 import ru.practicum.dto.compilation.UpdateCompilationRequest;
-import ru.practicum.service.impl.CompilationServiceImpl;
+import ru.practicum.service.CompilationService;
 
 @Slf4j
 @RestController
@@ -17,7 +17,7 @@ import ru.practicum.service.impl.CompilationServiceImpl;
 @RequiredArgsConstructor
 public class AdminCompilationController {
 
-    private final CompilationServiceImpl compilationService;
+    private final CompilationService compilationService;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)

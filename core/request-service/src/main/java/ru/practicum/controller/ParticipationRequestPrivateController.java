@@ -1,5 +1,6 @@
 package ru.practicum.controller;
 
+import com.google.protobuf.util.Timestamps;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,6 +12,7 @@ import ru.practicum.ewm.stats.proto.ActionTypeProto;
 import ru.practicum.ewm.stats.proto.UserActionProto;
 import ru.practicum.service.ParticipationRequestServiceImpl;
 
+import java.time.Instant;
 import java.util.List;
 
 @Slf4j
@@ -32,6 +34,7 @@ public class ParticipationRequestPrivateController {
     public ParticipationRequestDto createRequest(@PathVariable @Positive Long userId,
                                                  @RequestParam @Positive Long eventId) {
         collectorClient.collectUserAction(UserActionProto.newBuilder()
+                .setTimestamp(Timestamps.fromMillis(Instant.now().toEpochMilli()))
                 .setUserId(userId)
                 .setEventId(eventId)
                 .setActionType(ActionTypeProto.ACTION_REGISTER)

@@ -1,5 +1,6 @@
 package ru.practicum.controller;
 
+import com.google.protobuf.util.Timestamps;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,8 +16,9 @@ import ru.practicum.ewm.stats.proto.ActionTypeProto;
 import ru.practicum.ewm.stats.proto.UserActionProto;
 import ru.practicum.exception.BadRequestException;
 import ru.practicum.parameters.PublicSearchParam;
-import ru.practicum.service.impl.EventServiceImpl;
+import ru.practicum.service.EventService;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -27,7 +29,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PublicEventController {
 
-    private final EventServiceImpl eventService;
+    private final EventService eventService;
     private final CollectorClient collectorClient;
     private final RequestClient requestClient;
 
@@ -77,13 +79,14 @@ public class PublicEventController {
     }
 
     @GetMapping("/{id}")
-    public EventFullDto getEventById(@PathVariable Long id, HttpServletRequest request, @RequestHeader(value = "X-EWM-USER-ID", required = false) Long userId) {
+    public EventFullDto getEventById(@PathVariable Long id, HttpServletRequest request, @RequestHeader(value = "X-EWM-USER-ID") Long userId) {
 
         String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
         log.info("GET /events/{}: ip={}, uri={}, ts={}", id, request.getRemoteAddr(), request.getRequestURI(), timestamp);
 
         collectorClient.collectUserAction(UserActionProto.newBuilder()
+                .setTimestamp(Timestamps.fromMillis(Instant.now().toEpochMilli()))
                 .setEventId(id)
                 .setUserId(userId)
                 .setActionType(ActionTypeProto.ACTION_VIEW)
@@ -104,6 +107,7 @@ public class PublicEventController {
         boolean isConfirmed = requestClient.existsByRequesterAndEventAndStatus(userId, eventId, RequestStatus.CONFIRMED);
         if (isConfirmed) {
             collectorClient.collectUserAction(UserActionProto.newBuilder()
+                    .setTimestamp(Timestamps.fromMillis(Instant.now().toEpochMilli()))
                     .setEventId(eventId)
                     .setUserId(userId)
                     .setActionType(ActionTypeProto.ACTION_LIKE)

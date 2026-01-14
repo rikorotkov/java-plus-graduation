@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import ru.practicum.aop.ClientErrorHandler;
 import ru.practicum.client.UserClient;
 import ru.practicum.dto.event.*;
+import ru.practicum.dto.user.UserShortDto;
 import ru.practicum.entity.Event;
 import ru.practicum.entity.Location;
 
@@ -16,13 +17,13 @@ public class EventMapper {
     private final CategoryMapper categoryMapper;
 
     @ClientErrorHandler
-    public EventShortDto toShortDto(Event event) {
+    public EventShortDto toShortDto(Event event, UserShortDto initiator) {
         return EventShortDto.builder()
                 .annotation(event.getAnnotation())
                 .category(categoryMapper.toDto(event.getCategory()))
                 .eventDate(event.getEventDate())
                 .id(event.getId())
-                .initiator(userClient.getUserShortDtoById(event.getInitiator()))
+                .initiator(initiator)
                 .paid(event.getPaid())
                 .title(event.getTitle())
                 .confirmedRequests(0L)
@@ -48,6 +49,32 @@ public class EventMapper {
                 .state(event.getState())
                 .requestModeration(event.getRequestModeration())
                 .build();
+    }
+
+    @ClientErrorHandler
+    public EventFullDto toFullDto(Event event, UserShortDto initiator) {
+        return EventFullDto.builder()
+                .annotation(event.getAnnotation())
+                .category(categoryMapper.toDto(event.getCategory()))
+                .eventDate(event.getEventDate())
+                .id(event.getId())
+                .initiator(initiator)
+                .paid(event.getPaid())
+                .title(event.getTitle())
+                .createdOn(event.getCreatedOn())
+                .description(event.getDescription())
+                .location(toLocationDto(event))
+                .participantLimit(event.getParticipantLimit())
+                .publishedOn(event.getPublishedOn())
+                .state(event.getState())
+                .requestModeration(event.getRequestModeration())
+                .build();
+    }
+
+    @ClientErrorHandler
+    public EventShortDto toShortDto(Event event) {
+        UserShortDto initiator = userClient.getUserShortDtoById(event.getInitiator());
+        return toShortDto(event, initiator);
     }
 
     public Event toEntity(NewEventDto dto, Long userId) {

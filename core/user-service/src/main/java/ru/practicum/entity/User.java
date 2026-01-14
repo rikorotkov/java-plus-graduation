@@ -1,6 +1,7 @@
 package ru.practicum.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
@@ -23,7 +24,8 @@ public class User {
 
     @Size(max = 254)
     @NotNull
-    @Column(name = "email", nullable = false, length = 254)
+    @Column(name = "email", nullable = false, length = 254, unique = true)
+    @Email
     private String email;
 
 }

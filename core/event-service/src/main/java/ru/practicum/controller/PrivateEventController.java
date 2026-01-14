@@ -17,7 +17,7 @@ import ru.practicum.dto.request.EventRequestStatusUpdateRequest;
 import ru.practicum.dto.request.EventRequestStatusUpdateResult;
 import ru.practicum.dto.request.ParticipationRequestDto;
 import ru.practicum.parameters.EventUserSearchParam;
-import ru.practicum.service.impl.EventServiceImpl;
+import ru.practicum.service.EventService;
 
 import java.util.List;
 
@@ -27,7 +27,7 @@ import java.util.List;
 @RequestMapping("/users/{userId}/events")
 public class PrivateEventController {
 
-    private final EventServiceImpl eventService;
+    private final EventService eventService;
     private final RequestClient requestClient;
 
     @GetMapping

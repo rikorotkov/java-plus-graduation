@@ -8,7 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.dto.category.CategoryDto;
 import ru.practicum.dto.category.NewCategoryDto;
-import ru.practicum.service.impl.CategoryServiceImpl;
+import ru.practicum.service.CategoryService;
 
 @Slf4j
 @RestController
@@ -16,7 +16,7 @@ import ru.practicum.service.impl.CategoryServiceImpl;
 @RequiredArgsConstructor
 public class AdminCategoryController {
 
-    private final CategoryServiceImpl service;
+    private final CategoryService service;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
