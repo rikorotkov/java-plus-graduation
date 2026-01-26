@@ -1,19 +1,24 @@
 package ru.practicum.controller;
 
+import com.google.protobuf.util.Timestamps;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.StatsClient;
-import ru.practicum.dto.EndpointHitDto;
+import ru.practicum.CollectorClient;
+import ru.practicum.client.RequestClient;
 import ru.practicum.dto.event.EventFullDto;
 import ru.practicum.dto.event.EventShortDto;
+import ru.practicum.dto.event.SortSearchParam;
+import ru.practicum.dto.request.RequestStatus;
+import ru.practicum.ewm.stats.proto.ActionTypeProto;
+import ru.practicum.ewm.stats.proto.UserActionProto;
 import ru.practicum.exception.BadRequestException;
-import ru.practicum.params.PublicEventSearchParam;
-import ru.practicum.params.SortSearchParam;
+import ru.practicum.parameters.PublicSearchParam;
 import ru.practicum.service.EventService;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -25,16 +30,16 @@ import java.util.List;
 public class PublicEventController {
 
     private final EventService eventService;
-    private final StatsClient statsClient;
-    private static final String DATE_TIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
+    private final CollectorClient collectorClient;
+    private final RequestClient requestClient;
 
     @GetMapping
     public List<EventShortDto> getEvents(
             @RequestParam(required = false) String text,
             @RequestParam(required = false) List<Long> categories,
             @RequestParam(required = false) Boolean paid,
-            @RequestParam(required = false) @DateTimeFormat(pattern = DATE_TIME_PATTERN) LocalDateTime rangeStart,
-            @RequestParam(required = false) @DateTimeFormat(pattern = DATE_TIME_PATTERN) LocalDateTime rangeEnd,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeStart,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeEnd,
             @RequestParam(required = false) SortSearchParam sort,
             @RequestParam(defaultValue = "false") Boolean onlyAvailable,
             @RequestParam(defaultValue = "0") Integer from,
@@ -44,20 +49,18 @@ public class PublicEventController {
         if (rangeStart != null && rangeEnd != null && rangeStart.isAfter(rangeEnd)) {
             throw new BadRequestException("rangeEnd can't before rangeStart");
         }
-        if (rangeEnd == null && rangeStart == null) {
+        if (rangeStart == null) {
             rangeStart = LocalDateTime.now();
         }
 
-        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern(DATE_TIME_PATTERN));
+        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
-        statsClient.postHit(EndpointHitDto.builder()
-                .app("ewm-main-service")
-                .uri(request.getRequestURI())
-                .ip(request.getRemoteAddr())
-                .timestamp(timestamp)
-                .build());
+        log.info("GET /events: text={}, categories={}, paid={}, start={}, end={}, sort={}, from={}, size={}, ip={}, uri={}, ts={}",
+                text, categories, paid, rangeStart, rangeEnd, sort, from, size,
+                request.getRemoteAddr(), request.getRequestURI(), timestamp);
 
-        PublicEventSearchParam param = PublicEventSearchParam.builder()
+
+        PublicSearchParam param = PublicSearchParam.builder()
                 .text(text)
                 .categories(categories)
                 .paid(paid)
@@ -71,22 +74,46 @@ public class PublicEventController {
 
         List<EventShortDto> events = eventService.searchEvents(param);
 
+        log.info("Returned {} events for GET /events", events.size());
         return events;
     }
 
     @GetMapping("/{id}")
-    public EventFullDto getEventById(@PathVariable Long id, HttpServletRequest request) {
+    public EventFullDto getEventById(@PathVariable Long id, HttpServletRequest request, @RequestHeader(value = "X-EWM-USER-ID") Long userId) {
 
-        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern(DATE_TIME_PATTERN));
+        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
-        statsClient.postHit(EndpointHitDto.builder()
-                .app("ewm-main-service")
-                .uri(request.getRequestURI())
-                .ip(request.getRemoteAddr())
-                .timestamp(timestamp)
+        log.info("GET /events/{}: ip={}, uri={}, ts={}", id, request.getRemoteAddr(), request.getRequestURI(), timestamp);
+
+        collectorClient.collectUserAction(UserActionProto.newBuilder()
+                .setTimestamp(Timestamps.fromMillis(Instant.now().toEpochMilli()))
+                .setEventId(id)
+                .setUserId(userId)
+                .setActionType(ActionTypeProto.ACTION_VIEW)
                 .build());
 
-        EventFullDto event = eventService.getEventById(id);
+        EventFullDto event = eventService.getPublishedEventById(id);
+        log.info("Returned event {} for GET /events/{}", event.getId(), id);
         return event;
+    }
+
+    @GetMapping("/recommendations")
+    public List<EventShortDto> getRecommendationsForUser(@RequestHeader("X-EWM-USER-ID") Long userId) {
+        return eventService.getRecommendationsForUser(userId);
+    }
+
+    @PostMapping("/{eventId}/like")
+    public void likeEvent(@PathVariable Long eventId, @RequestHeader("X-EWM-USER-ID") Long userId) {
+        boolean isConfirmed = requestClient.existsByRequesterAndEventAndStatus(userId, eventId, RequestStatus.CONFIRMED);
+        if (isConfirmed) {
+            collectorClient.collectUserAction(UserActionProto.newBuilder()
+                    .setTimestamp(Timestamps.fromMillis(Instant.now().toEpochMilli()))
+                    .setEventId(eventId)
+                    .setUserId(userId)
+                    .setActionType(ActionTypeProto.ACTION_LIKE)
+                    .build());
+        } else {
+            throw new BadRequestException("Only participants can like the event");
+        }
     }
 }

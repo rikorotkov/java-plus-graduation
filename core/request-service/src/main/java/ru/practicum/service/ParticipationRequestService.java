@@ -3,14 +3,13 @@ package ru.practicum.service;
 import ru.practicum.dto.request.EventRequestStatusUpdateRequest;
 import ru.practicum.dto.request.EventRequestStatusUpdateResult;
 import ru.practicum.dto.request.ParticipationRequestDto;
+import ru.practicum.dto.request.RequestStatus;
 
 import java.util.List;
 import java.util.Map;
 
 public interface ParticipationRequestService {
-    List<ParticipationRequestDto> getRequestForEventByUserId(Long eventId, Long userId);
-
-    EventRequestStatusUpdateResult updateRequests(Long eventId, Long userId, EventRequestStatusUpdateRequest updateRequest);
+    List<ParticipationRequestDto> getRequestForEventByUserId(Long userId, Long eventId);
 
     List<ParticipationRequestDto> getRequestsByUser(Long userId);
 
@@ -18,5 +17,11 @@ public interface ParticipationRequestService {
 
     ParticipationRequestDto cancelRequest(Long userId, Long requestId);
 
-    Map<Long, Long> getConfirmedRequestsCount(List<Long> eventIds);
+    Map<Long, Long> countRequestsByEventIdsAndStatus(List<Long> ids, RequestStatus status);
+
+    boolean existsByRequesterAndEventAndStatus(Long userId, Long eventId, RequestStatus status);
+
+    List<ParticipationRequestDto> getEventRequests(Long userId, Long eventId);
+
+    EventRequestStatusUpdateResult updateRequestStatus(Long userId, Long eventId, EventRequestStatusUpdateRequest request);
 }

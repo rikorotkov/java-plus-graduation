@@ -1,8 +1,9 @@
 package ru.practicum.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
-import lombok.experimental.FieldDefaults;
+import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.Setter;
 import ru.practicum.dto.request.RequestStatus;
 
 import java.time.LocalDateTime;
@@ -10,26 +11,27 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Entity
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@Table(name = "participation_requests")
-@FieldDefaults(level = AccessLevel.PRIVATE)
+@Table(name = "participation_request")
 public class ParticipationRequest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+    @Column(name = "id", nullable = false)
+    private Long id;
 
+    @NotNull
     @Column(name = "requester_id", nullable = false)
-    Long requesterId;
+    private Long requester;
 
+    @NotNull
     @Column(name = "event_id", nullable = false)
-    Long eventId;
+    private Long event;
 
-    @Column(name = "status")
+    @NotNull
     @Enumerated(EnumType.STRING)
-    RequestStatus status;
+    @Column(name = "status", nullable = false, length = 32)
+    private RequestStatus status;
 
     @Column(name = "created")
-    LocalDateTime created = LocalDateTime.now();
+    private LocalDateTime created;
+
 }

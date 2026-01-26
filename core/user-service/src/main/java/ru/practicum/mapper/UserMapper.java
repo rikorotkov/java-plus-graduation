@@ -1,18 +1,19 @@
 package ru.practicum.mapper;
 
-import org.springframework.stereotype.Component;
-import ru.practicum.dto.NewUserRequest;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingConstants;
+import ru.practicum.dto.user.NewUserRequest;
 import ru.practicum.dto.user.UserDto;
+import ru.practicum.dto.user.UserShortDto;
 import ru.practicum.entity.User;
 
-@Component
-public class UserMapper {
+@Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
+public interface UserMapper {
+    @Mapping(target = "id", ignore = true)
+    User toEntity(NewUserRequest dto);
 
-    public User toUser(NewUserRequest newUserRequest) {
-        return new User(null, newUserRequest.getName(), newUserRequest.getEmail());
-    }
+    UserDto toDto(User user);
 
-    public UserDto toUserDto(User user) {
-        return new UserDto(user.getId(), user.getName(), user.getEmail());
-    }
+    UserShortDto toShortDto(User user);
 }

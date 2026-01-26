@@ -1,39 +1,30 @@
 package ru.practicum.service;
 
-import ru.practicum.dto.NewEventDto;
-import ru.practicum.dto.event.EventFullDto;
-import ru.practicum.dto.event.EventShortDto;
-import ru.practicum.dto.event.UpdateEventAdminRequest;
-import ru.practicum.dto.event.UpdateEventUserRequest;
-import ru.practicum.params.EventAdminSearchParam;
-import ru.practicum.params.EventUserSearchParam;
-import ru.practicum.params.PublicEventSearchParam;
+import ru.practicum.dto.event.*;
+import ru.practicum.parameters.EventAdminSearchParam;
+import ru.practicum.parameters.EventUserSearchParam;
+import ru.practicum.parameters.PublicSearchParam;
 
 import java.util.List;
-import java.util.Map;
-
 
 public interface EventService {
-
-    List<EventFullDto> getEventsByParams(EventAdminSearchParam param);
-
-    EventFullDto updateEventByAdmin(Long eventId, UpdateEventAdminRequest updateRequest);
-
-    EventFullDto getEventById(Long id);
-
-    EventFullDto getEventForRequest(Long id);
-
-    List<EventShortDto> searchEvents(PublicEventSearchParam param);
-
-    List<EventShortDto> getUsersEvents(EventUserSearchParam param);
+    List<EventShortDto> getUsersEvents(EventUserSearchParam params);
 
     EventFullDto saveEvent(NewEventDto dto, Long userId);
 
-    EventFullDto getEventByIdAndUserId(Long userId, Long eventId);
+    List<EventShortDto> searchEvents(PublicSearchParam param);
 
-    EventFullDto updateEventByUser(Long userId, Long eventId, UpdateEventUserRequest updateRequest);
+    EventFullDto getPublishedEventById(Long id);
 
-    List<EventShortDto> getEventsFeedCogList(List<Long> followedUsersIds, PublicEventSearchParam param);
+    EventFullDto getEventById(Long id);
 
-    Map<Long, EventFullDto> getEventsFeedCogMap(List<Long> followedUsersIds, PublicEventSearchParam param);
+    EventFullDto getEventByIdAndUserId(Long eventId, Long userId);
+
+    EventFullDto updateEventByUser(Long eventId, Long userId, UpdateEventUserRequest event);
+
+    List<EventFullDto> getEventsByParams(EventAdminSearchParam params);
+
+    EventFullDto updateEventByAdmin(Long eventId, UpdateEventAdminRequest updateRequest);
+
+    List<EventShortDto> getRecommendationsForUser(Long userId);
 }

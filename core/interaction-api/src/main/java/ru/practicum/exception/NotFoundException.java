@@ -1,7 +1,9 @@
 package ru.practicum.exception;
 
-public class NotFoundException extends RuntimeException {
-    public NotFoundException(String s) {
-        super(s);
+import feign.FeignException;
+
+public class NotFoundException extends FeignException {
+    public NotFoundException(String message) {
+        super(404, message);
     }
 }

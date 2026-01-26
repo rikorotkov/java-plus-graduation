@@ -1,15 +1,22 @@
 package ru.practicum.service;
 
-import ru.practicum.dto.NewUserRequest;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import ru.practicum.dto.user.NewUserRequest;
 import ru.practicum.dto.user.UserDto;
+import ru.practicum.dto.user.UserShortDto;
+import ru.practicum.parameters.UserAdminSearchParam;
 
 import java.util.List;
 
 public interface UserService {
+    UserDto create(NewUserRequest user);
 
-    UserDto addUser(NewUserRequest newUserRequest);
+    void delete(Long userId);
 
-    void deleteUser(Long userId);
+    List<UserDto> getUsers(UserAdminSearchParam params);
 
-    List<UserDto> getUsers(List<Long> ids, Integer from, Integer size);
+    UserDto getUserById(@NotNull @Positive Long userId);
+
+    UserShortDto getUserShortDtoById(@NotNull @Positive Long userId);
 }
